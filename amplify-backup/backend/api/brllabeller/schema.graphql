@@ -1,0 +1,184 @@
+# This "input" configures a global authorization rule to enable public access to
+# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
+input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
+
+
+type LabelSession @model {
+  dataState: String
+  dateCreated: AWSDateTime!
+  labelData: AWSJSON!
+  labellerName: String!
+  sourceId: ID! @primaryKey(sortKeyFields: ["dateCreated"])
+  zoomData: AWSJSON
+}
+
+type LabelSessionConnection {
+  items: [LabelSession]
+  nextToken: String
+}
+
+type Mutation {
+  updateLabelSessionPunches(dateCreated: AWSDateTime!, labelData: AWSJSON, sourceId: ID!, zoomData: AWSJSON): LabelSession
+  updateLabelSessionState(dataState: String, dateCreated: AWSDateTime!, sourceId: ID!): LabelSession
+}
+
+type VideoDataSource @model {
+  boxer1: String
+  boxer2: String
+  date: AWSDate
+  description: String
+  fps: Float
+  id: ID!
+  location: String
+  num_camera_views: Int
+  round: Int
+  segment: String
+  assigned_labellers: [String]
+  source_urls: [String]
+}
+
+type VideoDataSourceConnection {
+  items: [VideoDataSource]
+  nextToken: String
+}
+
+input CreateLabelSessionInput {
+  dataState: String
+  dateCreated: AWSDateTime!
+  labelData: AWSJSON!
+  labellerName: String!
+  sourceId: ID!
+  zoomData: AWSJSON
+}
+
+input CreateVideoDataSourceInput {
+  boxer1: String
+  boxer2: String
+  date: AWSDate
+  description: String
+  fps: Float
+  location: String
+  num_camera_views: Int
+  round: Int
+  assigned_labellers: [String]
+  source_urls: [String]
+}
+
+input DeleteLabelSessionInput {
+  dateCreated: AWSDateTime!
+  sourceId: ID!
+}
+
+input DeleteVideoDataSourceInput {
+  id: ID!
+}
+
+input ModelSizeInput {
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input TableBooleanFilterInput {
+  attributeExists: Boolean
+  eq: Boolean
+  ne: Boolean
+}
+
+input TableFloatFilterInput {
+  attributeExists: Boolean
+  between: [Float]
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+}
+
+input TableIDFilterInput {
+  attributeExists: Boolean
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+  size: ModelSizeInput
+}
+
+input TableIntFilterInput {
+  attributeExists: Boolean
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input TableLabelSessionFilterInput {
+  dataState: TableStringFilterInput
+  dateCreated: TableStringFilterInput
+  labellerName: TableStringFilterInput
+  sourceId: TableIDFilterInput
+}
+
+input TableStringFilterInput {
+  attributeExists: Boolean
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+  size: ModelSizeInput
+}
+
+input TableVideoDataSourceFilterInput {
+  boxer1: TableStringFilterInput
+  boxer2: TableStringFilterInput
+  date: TableStringFilterInput
+  fps: TableFloatFilterInput
+  id: TableIDFilterInput
+  location: TableStringFilterInput
+  num_camera_views: TableIntFilterInput
+  round: TableIntFilterInput
+  assigned_labellers: TableStringFilterInput
+  source_urls: TableStringFilterInput
+}
+
+input UpdateLabelSessionInput {
+  dataState: String
+  dateCreated: AWSDateTime!
+  labelData: AWSJSON!
+  labellerName: String!
+  sourceId: ID!
+  zoomData: AWSJSON
+}
+
+input UpdateVideoDataSourceInput {
+  boxer1: String
+  boxer2: String
+  date: AWSDate
+  fps: Float
+  id: ID!
+  location: String
+  num_camera_views: Int
+  round: Int
+  assigned_labellers: [String]
+  source_urls: [String]
+}

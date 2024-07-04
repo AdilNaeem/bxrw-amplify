@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Punch List Demo</title>
+</head>
+<body>
+    <button id="addPunchBtn">Add Punch</button>
+    <button id="closePunchBtn">Close Punch</button>
+
+    <script type="module">
+        import { PunchList } from './PunchList.js';
+
+        const punchList = new PunchList();
+
+        document.getElementById('addPunchBtn').addEventListener('click', () => {
+            const currentTime = new Date().toISOString();
+            punchList.addPunch(currentTime);
+            console.log('Punch added at:', currentTime);
+        });
+
+        document.getElementById('closePunchBtn').addEventListener('click', () => {
+            // Close punch logic (not implemented in this snippet)
+        });
+    </script>
+</body>
+</html>
+

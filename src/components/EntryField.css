@@ -1,0 +1,92 @@
+.grid-container2 {
+    width: 300px; /* Width of outer div */
+    height: 48px; /* Height of outer div */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns with equal width */
+    gap: 20px; /* Gap between grid items */
+}
+.grid-item {
+    border: 0px solid black;
+    padding: 10px 0px 10px 0px;
+    display: flex; /* Use flexbox for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    background-color: #d3d3d3; /* Background color */
+}
+.grid-item p {
+    font-family: inter, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif; /* Use Inter font */
+    margin: 0; /* Set margin to 0 */
+}
+
+.grid-container3 {
+    width: 300px; /* Width of outer div */
+    height: 48px; /* Height of outer div */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Two columns with equal width */
+    gap: 15px; /* Gap between grid items */
+}
+.grid-item3 {
+    border: 0px solid black;
+    padding: 10px 0px 10px 0px;
+    display: flex; /* Use flexbox for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    background-color: #efefef; /* Background color */
+}
+.grid-item3 p {
+    font-family: inter, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif; /* Use Inter font */
+    margin: 0; /* Set margin to 0 */
+}
+.grid-container4 {
+    width: 300px; /* Width of outer div */
+    height: 48px; /* Height of outer div */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Two columns with equal width */
+    gap: 10px; /* Gap between grid items */
+}
+.grid-item4 {
+    border: 0px solid black;
+    padding: 10px 0px 10px 0px;
+    display: flex; /* Use flexbox for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    background-color: #efefef; /* Background color */
+}
+.grid-item4 p {
+    font-family: inter, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif; /* Use Inter font */
+    margin: 0; /* Set margin to 0 */
+}
+
+.grid-container6 {
+    width: 300px; /* Width of outer div */
+    height: 106px; /* Height of outer div */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Two columns with equal width */
+    gap: 10px; /* Gap between grid items */
+}
+
+.grid-container8 {
+    width: 300px; /* Width of outer div */
+    height: 164px; /* Height of outer div */
+    display: grid;
+    grid-template-columns: repeat(3, 3fr); /* Two columns with equal width */
+    gap: 10px; /* Gap between grid items */
+}
+
+.entry-field-selected {
+    border: 2px solid black;
+}
+
+.entry-field-label p {
+    font-size: 12px;
+    margin: 16px 0px 2px 0px;
+}

@@ -1,0 +1,83 @@
+
+  .video-container {
+    width: 768px;
+    height: 432px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  video {
+    transition: transform 0.3s ease;
+    transform-origin: top left;
+  }
+
+  .cam-button-container {
+    background-color: #D9D9D9;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .cam-buttons-right {
+    margin-right: 7px;
+  }
+
+  .cam-button {
+    background-color: #D9D9D9;
+    margin: 12px 3px 10px 10px;
+    border-radius: 5px;
+  }
+
+  button.cam-button-selected {
+    background-color: black;
+    color: white;
+  }
+
+  .video-button-bar {
+    margin: 10px 5px 10px 5px;
+  }
+
+  .video-info-round {
+    font-size: 12px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 2px;
+    padding: 4px 9px 4px 9px;
+    margin: 0px 3px 0px 3px;
+  }
+
+  .video-info-round-finished {
+    font-size: 12px;
+    background-color: green;
+    border: 1px solid black;
+    border-radius: 2px;
+    padding: 4px 9px 4px 9px;
+    margin: 0px 3px 0px 3px;
+  }
+
+  .video-info-round-hidden {
+    color: white;
+    font-size: 12px;
+    background-color: white;
+    border: 1px solid white;
+    border-radius: 2px;
+    padding: 4px 9px 4px 9px;
+    margin: 0px 3px 0px 3px;
+  }
+
+  button.video-buttons {
+    font-size: 14px;
+  }
+
+  .video-player-buttons {
+    background-color: white;
+    padding: 0px 15px 0px 15px;
+  }
+
+  #time-display {
+    font-family: monospace;
+  }
+
+  #frame-count-display {
+    font-family: monospace;
+  }

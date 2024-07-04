@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS S3 Video Player</title>
+    <style>
+        /* Select which screen to show */
+        .list-screen {
+            display: block;
+        }
+
+        .round-record:hover {
+            background-color: gray;
+        }
+
+        .labelling-screen {
+            display: none;
+        }
+
+        /* Add a CSS rule to change cursor to crosshair when over the video */
+        #myVideo.zoomed {
+            cursor: crosshair;
+            margin-left: 0;
+            margin-top: 0;
+        }
+
+        /* Add a CSS rule for the red rectangle */
+        #zoomRectangle {
+            position: absolute;
+            border: 2px solid red;
+            pointer-events: none; /* Allow events to pass through the rectangle */
+        }
+
+        .video-container {
+            width: 640px;
+            overflow: hidden;
+            display: block;
+            height: 360px;
+        }
+
+        .info-box {
+            display: none;
+        }
+
+      /* Positioning for the video and info box */
+      .main-container {
+        display: flex; /* Use flexbox for layout */
+        align-items: flex-start; /* Align items to the start of the container */
+        gap: 20px; /* Gap between the image and the information box */
+      }
+    
+      /* Container styling for better layout */
+      .radio-button-container {
+        margin-bottom: 20px;
+      }
+    
+      /* Hide the default radio button */
+      .toggle-radio input[type="radio"] {
+        display: none;
+      }
+    
+      /* Styling for the labels to look like toggle buttons */
+      .toggle-radio label {
+        background-color: #ddd;
+        padding: 10px 20px;
+        border: 2px solid #444;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px; /* Adds spacing between toggle buttons */
+        display: inline-block; /* Aligns labels in a line */
+      }
+    
+      /* Styling for the labels when the radio button is checked */
+      .toggle-radio input[type="radio"]:checked + label {
+        background-color: #009688;
+        color: white;
+      }
+    
+      /* Styling for camera buttons */
+      .camera-buttons button {
+        padding: 2px 10px;
+        margin-right: 2px; /* Adds spacing between buttons */
+        background-color: #f2f2f2;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    
+      /* Modal Data Table (background) */
+      .modal-data-table {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      }
+      
+      /* Modal Data Table Content */
+      .modal-data-table-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+      }
+      
+      /* Data Table Close Button */
+      .data-table-close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      
+      .data-table-close:hover,
+      .data-table-close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+    </style>
+</head>
+<body>
+  <div id="list-screen" class="list-screen">
+    <p id="round1" class="round-record">Round 1</p>
+    <p id="round2" class="round-record">Round 2</p>
+    <p id="round3" class="round-record">Round 3</p>
+    <p id="round4" class="round-record">Round 4</p>
+    <p id="round5" class="round-record">Round 5</p>
+    <p id="round6" class="round-record">Round 6</p>
+    <p id="round7" class="round-record">Round 7</p>
+    <p id="round8" class="round-record">Round 8</p>
+  </div>
+  
+  <div id="labelling-screen" class="labelling-screen">
+    <div class="header-info">
+      <span>23 April 2023</span><br />
+      <span>Location Unknown</span><br />
+      <span>Round 1</span><br />
+    </div>
+
+    <div class="radio-button-container">
+      <form class="toggle-radio">
+        <input type="radio" id="boxer1" name="boxer" value="boxer1" checked>
+        <label for="boxer1">Boxer 1</label>
+    
+        <input type="radio" id="boxer2" name="boxer" value="boxer2">
+        <label for="boxer2">Boxer 2</label>
+      </form>
+    </div> 
+    <div class="camera-buttons">
+        <button id="vid1">CAM 1</button>
+        <button id="vid2">CAM 2</button>
+        <button id="vid3">CAM 3</button>
+        <button id="vid4">CAM 4</button>
+        <button id="vid5">CAM 5</button>
+        <button id="vid6">CAM 6</button>
+        <button id="vid7">CAM 7</button>
+        <button id="vid8">CAM 8</button>
+        <button id="vid9">CAM 9</button>
+    </div>
+
+    <div class='main-container'>
+    <div class="video-container" style="clip-path: polygon(0px 0px, 0px 360px, 640px 360px, 640px 0px);">
+    <video width="640" height="360" id="myVideo">
+        <!-- Video source will be added dynamically using JavaScript -->
+    </video>
+    </div>
+    <div id="info-box" class="info-box">
+      <h2>Boxer: <span id="info-box-boxer-name"></span></h2>
+      Start time: <span id='info-box-start-time'></span><br />
+      End time: <span id='info-box-end-time'></span><br />
+      Hand: <select id='info-box-hand'>
+              <option value="(empty)">(empty)</option>
+              <option value="Left">Left</option>
+              <option value="Right">Right</option>
+            </select><br />
+      Punch type: <select id='info-box-punch-type'>
+              <option value="(empty)">(empty)</option>
+              <option value="Straight">Straight</option>
+              <option value="Hook">Hook</option>
+              <option value="Uppercut">Uppercut</option>
+            </select><br />
+      Punch quality: <select id='info-box-punch-quality'>
+              <option value="(empty)">(empty)</option>
+              <option value="0">Missed</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select><br />
+      Target: <select id='info-box-target'>
+              <option value="(empty)">(empty)</option>
+              <option value="Head">Head</option>
+              <option value="Body">Body</option>
+            </select><br />
+    </div>
+    </div>
+
+    <div>
+    <button id="playButton">Play</button>
+    <button id="pauseButton">Pause</button>
+    <button id="backButton">&lt;</button>
+    <button id="forwardButton">&gt;</button>
+    <button id="zoomButton">Zoom</button>
+    <button id="startPunchButton">Start Punch</button>
+    <button id="endPunchButton">End Punch</button>
+    <button id="deletePunchButton">Delete Punch</button>
+    <button id="saveButton">Save</button>
+     
+     
+    </div>
+    <div>
+    <label id="counterLabel">Frame Count: 0</label>
+    </div>
+
+    <!-- Label to display rectangle coordinates -->
+    <label id="rectangleCoordinates">Rectangle Coordinates: N/A</label>
+
+    <!-- Overlay div for drawing the red rectangle -->
+    <div id="zoomRectangle"></div>
+
+  </div>
+
+  <!-- Modal Data Table -->
+  <div id="dataTableModal" class="modal-data-table">
+    <div class="modal-data-table-content">
+      <span class="data-table-close">&times;</span>
+      <h2>Punch Data</h2>
+      <h3>Boxer 1</h3>
+      <table id="punchDataTable1">
+        <tr>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Hand</th>
+          <th>Punch Type</th>
+          <th>Punch Quality</th>
+          <th>Target</th>
+        </tr>
+        <!-- Table rows will be added here dynamically -->
+      </table>
+      <hr></hr>
+      <h3>Boxer 2</h3>
+      <table id="punchDataTable2">
+        <tr>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Hand</th>
+          <th>Punch Type</th>
+          <th>Punch Quality</th>
+          <th>Target</th>
+        </tr>
+        <!-- Table rows will be added here dynamically -->
+      </table>
+    </div>
+  </div>
+
+    <script type="module">
+    import { PunchList } from './punchlist.js';
+
+    window.data = {
+        'round': 1,
+        'selectedBoxer': 'boxer1',
+        'boxers': {'boxer1': 'Nomi', 'boxer2': 'Mike'},
+        'punchData': {'boxer1': new PunchList(), 'boxer2': new PunchList()},
+    };
+    </script>
+
+    <script>
+        var data = window.data;
+        var state = {'video': 'paused'};
+
+        // setup the button id to url mapping
+        var id2url = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var listScreen = document.getElementById('list-screen');
+            var labellingScreen = document.getElementById('labelling-screen');
+
+            var vidButtons = Array(9).fill(0).map((_, i) => document.getElementById(`vid${i+1}`));
+            var boxerRadios = document.querySelectorAll('input[name="boxer"]');
+
+            var videoElement = document.getElementById('myVideo');
+            var infoBox = document.getElementById('info-box');
+            var playButton = document.getElementById('playButton');
+            var pauseButton = document.getElementById('pauseButton');
+            var forwardButton = document.getElementById('forwardButton');
+            var backButton = document.getElementById('backButton');
+            var zoomButton = document.getElementById('zoomButton');
+            var startPunchButton = document.getElementById('startPunchButton');
+            var endPunchButton = document.getElementById('endPunchButton');
+            var deletePunchButton = document.getElementById('deletePunchButton');
+            var saveButton = document.getElementById('saveButton');
+            var counterLabel = document.getElementById('counterLabel');
+            var rectangleCoordinatesLabel = document.getElementById('rectangleCoordinates');
+            var zoomRectangle = document.getElementById('zoomRectangle');
+            var frameRate = 50;
+            var frameCount = 0;
+            var zoomed = false;
+            var isMouseDown = false;
+            var startCoordinates = { x: 0, y: 0 };
+
+            // Function to update the label with the current frame count
+            function updateLabel() {
+                const currentTime = videoElement.currentTime;
+                counterLabel.textContent = `Frame Count: ${frameCount} (${currentTime})`;
+            }
+
+            // Function to handle button click event for playing the video
+            function playVideo() {
+                videoElement.play();
+            }
+
+            // Function to handle button click event for pausing the video
+            function pauseVideo() {
+                videoElement.pause();
+            }
+
+            // Function to handle button click event for forwarding frames
+            function incrementCounter() {
+                // Calculate the time to forward by one frame
+                var frameTime = 1 / frameRate;
+
+                // Increment the frame count
+                frameCount++;
+
+                // Forward the video by one frame
+                videoElement.currentTime += frameTime;
+
+                // Updates
+                updateLabel();
+                updateUi();
+            }
+
+            // Function to handle button click event for backing one frame
+            function decrementCounter() {
+                // Ensure the frame count is not negative
+                if (frameCount > 0) {
+                    // Calculate the time to go back by one frame
+                    var frameTime = 1 / frameRate;
+
+                    // Decrement the frame count
+                    frameCount--;
+
+                    // Go back in the video by one frame
+                    videoElement.currentTime -= frameTime;
+
+                    // Updates
+                    updateLabel();
+                    updateUi();
+                }
+            }
+
+            // Function to handle Start Punch button click event
+            function startPunch() {
+                const selectedBoxer = data['selectedBoxer'];
+                const punchList = data['punchData'][selectedBoxer];
+                const currentTime = videoElement.currentTime;
+                punchList.addPunch(currentTime);
+                updateUi();
+            }
+
+            function endPunch() {
+                const selectedBoxer = data['selectedBoxer'];
+                const punchList = data['punchData'][selectedBoxer];
+                const currentTime = videoElement.currentTime;
+                punchList.closePunch(currentTime);
+                updateUi();
+            }
+
+            function deletePunch() {
+                const currentTime = videoElement.currentTime;
+                const selectedPunchData = getSelectedPunchData();
+                console.log(selectedPunchData);
+                selectedPunchData.deletePunchAt(currentTime);
+            }
+
+            // Function to handle button click event for zooming
+            function toggleZoom() {
+                if (zoomed) {
+                    // Reset the zoom transformation
+                    videoElement.style.transform = 'none';
+
+                    // crop to correct origin
+                    videoElement.style.marginLeft = '0px';
+                    videoElement.style.marginTop = '0px';
+                }
+
+                zoomed = !zoomed;
+
+                if (zoomed) {
+                    // Switch to "ready to zoom" state
+                    videoElement.classList.add('zoomed');
+                    zoomButton.textContent = 'Unzoom';
+
+                    // Attach event listeners for mouse events
+                    videoElement.addEventListener('mousedown', startDrawing);
+                    videoElement.addEventListener('mousemove', continueDrawing);
+                    videoElement.addEventListener('mouseup', stopDrawing);
+                } else {
+                    // Switch back to "normal" state
+                    videoElement.classList.remove('zoomed');
+                    zoomButton.textContent = 'Zoom';
+
+                    // Remove event listeners for mouse events
+                    videoElement.removeEventListener('mousedown', startDrawing);
+                    videoElement.removeEventListener('mousemove', continueDrawing);
+                    videoElement.removeEventListener('mouseup', stopDrawing);
+
+                    // Clear the drawn rectangle
+                    clearRectangle();
+                }
+            }
+
+            // Function to start drawing the rectangle
+            function startDrawing(event) {
+                isMouseDown = true;
+                startCoordinates = { x: event.clientX, y: event.clientY };
+            }
+
+            // Function to continue drawing the rectangle
+            function continueDrawing(event) {
+                if (isMouseDown) {
+                    drawRectangle(startCoordinates, { x: event.clientX, y: event.clientY });
+                }
+            }
+
+            // Function to stop drawing the rectangle
+            function stopDrawing(event) {
+                if (isMouseDown) {
+                    isMouseDown = false;
+
+                    // get bounding rect to calculate coordinates relative to element                 
+                    var rect = event.target.getBoundingClientRect();
+
+                    // Display rectangle coordinates in label
+                    var endCoordinates = { x: event.clientX - rect.x, y: event.clientY - rect.y };
+                    // Fix startCoordinates to be relative to element
+                    startCoordinates = {x: startCoordinates.x - rect.x, y: startCoordinates.y - rect.y};
+
+                    rectangleCoordinatesLabel.textContent = 'Rectangle Coordinates: ' +
+                        '(' + startCoordinates.x + ', ' + startCoordinates.y + ') - ' +
+                        '(' + endCoordinates.x + ', ' + endCoordinates.y + ')';
+
+                    // Zoom to the selected area
+                    zoomToArea(startCoordinates, endCoordinates);
+                    
+                    // Clear the drawn rectangle
+                    clearRectangle();
+                }
+            }
+
+            // Function to draw the rectangle on the video
+            function drawRectangle(start, end) {
+                var rectX = Math.min(start.x, end.x);
+                var rectY = Math.min(start.y, end.y);
+                var rectWidth = Math.abs(start.x - end.x);
+                var rectHeight = Math.abs(start.y - end.y);
+
+                // Set the position and size of the overlay div
+                zoomRectangle.style.left = rectX + 'px';
+                zoomRectangle.style.top = rectY + 'px';
+                zoomRectangle.style.width = rectWidth + 'px';
+                zoomRectangle.style.height = rectHeight + 'px';
+            }
+
+            // Function to clear the drawn rectangle
+            function clearRectangle() {
+                // Reset the position and size of the overlay div
+                zoomRectangle.style.left = '-9999px';
+                zoomRectangle.style.top = '-9999px';
+                zoomRectangle.style.width = '0';
+                zoomRectangle.style.height = '0';
+            }
+
+
+            // Function to zoom to the selected area
+            function zoomToArea(start, end) {
+                // Calculate zoom parameters
+                var rectWidth = Math.abs(start.x - end.x);
+                var rectHeight = Math.abs(start.y - end.y);
+                var videoWidth = videoElement.clientWidth;
+                var videoHeight = videoElement.clientHeight;
+
+                // Calculate the scale factors
+                var scaleX = videoWidth / rectWidth;
+                var scaleY = videoHeight / rectHeight;
+
+                // Calculate the position offset
+                var offsetX = Math.min(start.x, end.x);
+                var offsetY = Math.min(start.y, end.y);
+
+                // Apply the zoom transformation
+                videoElement.style.transformOrigin = 'top left';
+                videoElement.style.transform = 'scale(' + scaleX + ', ' + scaleY + ')';
+                strTransform = `scale(${scaleX}, ${scaleY}) translate(-${offsetX}px, -${offsetY}px)`;
+                videoElement.style.transform = strTransform;
+                
+            }
+
+            function updateUi() {
+                updateButtons();
+                updateInfoBox(data);
+            }
+
+            function updateButtons() {
+                const videoState = state['video'];
+                const selectedBoxerHasOpenPunch = data['punchData'][data['selectedBoxer']].hasOpenPunch;
+                const currentTime = videoElement.currentTime;
+                const selectedBoxerHasPunchAtCurrentTime = data['punchData'][data['selectedBoxer']].hasPunchAt(currentTime);
+                playButton.disabled = state['video'] == 'playing';
+                pauseButton.disabled = state['video'] == 'paused';
+                backButton.disabled = state['video'] == 'playing';
+                forwardButton.disabled = state['video'] == 'playing';
+                zoomButton.disabled = state['video'] == 'playing';
+                startPunchButton.disabled = selectedBoxerHasOpenPunch || state['video'] == 'playing';
+                endPunchButton.disabled = !selectedBoxerHasOpenPunch || state['video'] == 'playing'; // this should only be enabled if we have a current start punch
+                deletePunchButton.disabled = !selectedBoxerHasPunchAtCurrentTime || state['video'] == 'playing';
+            }
+
+            // Event listener for the timeupdate event to update frame count during playback
+            videoElement.addEventListener('timeupdate', function () {
+                // Calculate the frame count based on current time and frame rate
+                frameCount = Math.floor(videoElement.currentTime * frameRate);
+
+                // Update the label
+                updateLabel();
+            });
+
+            // thrown when video starts to play after loading or pause
+            videoElement.addEventListener('play', function () {
+                state['video'] = 'playing';
+                updateUi();
+            });
+
+            // thrown when video is paused
+            videoElement.addEventListener('pause', function () {
+                state['video'] = 'paused';
+                updateUi();
+            });
+
+            // =============== info box event listeners ================
+            document.getElementById('info-box-hand').addEventListener('change', function () {
+                var punch = selectedPunch();
+                punch.hand = this.value; 
+            });
+
+            document.getElementById('info-box-punch-type').addEventListener('change', function () {
+                var punch = selectedPunch();
+                punch.punchType = this.value; 
+            });
+
+            document.getElementById('info-box-punch-quality').addEventListener('change', function () {
+                var punch = selectedPunch();
+                punch.punchQuality = this.value; 
+            });
+
+            document.getElementById('info-box-target').addEventListener('change', function () {
+                var punch = selectedPunch();
+                punch.target = this.value; 
+            });
+
+            // =============== data table event listeners ===============
+          
+            // Close modal when the close button is clicked
+            document.querySelector('.data-table-close').addEventListener('click', function() {
+              document.getElementById('dataTableModal').style.display = 'none';
+            });
+
+            // =============== inline functions here ====================
+            function selectedPunch() {
+                const currentTime = videoElement.currentTime;
+                const selectedPunchData = getSelectedPunchData();
+                return selectedPunchData.getPunchAt(currentTime);
+            }
+
+            function getSelectedPunchData() {
+                const selectedBoxerId = data['selectedBoxer'];
+                const selectedPunchData = data['punchData'][selectedBoxerId];
+                return selectedPunchData;
+            }
+ 
+            function selectVideo() {
+                // Store the current time
+                var currentTime = videoElement.currentTime;
+                // Replace 'newVideoURL.mp4' with the actual URL of the new video you want to load
+    
+                videoElement.src = id2url.get(this.id);
+    
+                // Set an event listener for when the video is loaded enough to play
+                videoElement.addEventListener('canplay', function() {
+                    // Set the current time to the stored time
+                    videoElement.currentTime = currentTime;
+                    // Play the video
+                    //videoElement.play();
+                }, { once: true }); // The { once: true } option auto-removes the event listener after it runs
+            }
+    
+            function selectRoundItem() {
+                // Setup the correct vid id to url mapping
+                var roundId = this.id.substr(this.id.length - 1);
+                id2url = new Map(Array(9).fill(0).map((_, i) => [`vid${i+1}`, `https://do5dznmsu0r6j.cloudfront.net/Round_${roundId}-CAM_${(i % 3) + 1}.mp4`]));
+            
+                // Add source to the video element
+                var source = document.createElement('source');
+                source.setAttribute('src', id2url.get('vid1'));
+                source.setAttribute('type', 'video/mp4');
+    
+                // Add the source element to the video element
+                videoElement.appendChild(source);
+    
+                // update info box with any current punch data
+                updateInfoBox(data);
+          
+                labellingScreen.style.display = 'block';
+                listScreen.style.display = 'none';
+            }
+    
+            function updateInfoBox(data) {
+                var selectedBoxerId = data['selectedBoxer'];
+                var selectedBoxerName = data['boxers'][selectedBoxerId];
+                var boxerNameField = document.getElementById('info-box-boxer-name');
+                boxerNameField.innerText = selectedBoxerName;
+
+                const currentTime = videoElement.currentTime;
+                const selectedPunchData = data['punchData'][selectedBoxerId];
+                if (selectedPunchData.hasPunchAt(currentTime)) {
+                    const punch = selectedPunchData.getPunchAt(currentTime);
+                    fillInfoBox(punch);
+                    infoBox.style.display = 'block'; 
+
+                } else {
+                    infoBox.style.display = 'none';
+                }
+            }
+
+            function fillInfoBox(punch) {
+                const fieldStartTime = document.getElementById('info-box-start-time');
+                fieldStartTime.innerText = punch.startTime; 
+                const fieldEndTime = document.getElementById('info-box-end-time');
+                fieldEndTime.innerText = punch.endTime; 
+
+                const fieldHand = document.getElementById('info-box-hand');
+                fieldHand.value = punch.hand;
+                const fieldPunchType = document.getElementById('info-box-punch-type');
+                fieldPunchType.value = punch.punchType;
+                const fieldPunchQuality = document.getElementById('info-box-punch-quality');
+                fieldPunchQuality.value = punch.punchQuality;
+                const fieldTarget = document.getElementById('info-box-target');
+                fieldTarget.value = punch.target;
+                 
+            }
+    
+            function boxerSelectionUpdate() {
+              // Select the checked radio button from the group named 'boxer'
+              var selectedBoxer = document.querySelector('input[name="boxer"]:checked').value;
+            
+              // Additional code for what you want to do with the selected value
+              data['selectedBoxer'] = selectedBoxer;
+    
+              updateUi();
+            }
+
+            function saveData() {
+                const boxer1 = data['boxers']['boxer1'];
+                const boxer1data = data['punchData']['boxer1'];
+                const boxer2 = data['boxers']['boxer2'];
+                const boxer2data = data['punchData']['boxer2'];
+                const message = `${boxer1}:\n${JSON.stringify(boxer1data)}\n\n${boxer2}:\n${JSON.stringify(boxer2data)}`;
+                //alert(message);
+
+                // display data table 1
+                var table = document.getElementById('punchDataTable1');
+             
+                // Clear previous rows except the header
+                for (var i = table.rows.length - 1; i > 0; i--) {
+                  table.deleteRow(i);
+                }
+             
+                // Add a new row with myNumber and its odd/even status
+                boxer1data['punches'].forEach(punch => {
+                    var row = table.insertRow();
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+                    var cell6 = row.insertCell(5);
+                    cell1.innerHTML = punch.startTime;
+                    cell2.innerHTML = punch.endTime;
+                    cell3.innerHTML = punch.hand;
+                    cell4.innerHTML = punch.punchType;
+                    cell5.innerHTML = punch.punchQuality;
+                    cell6.innerHTML = punch.target;
+                });
+                
+                // display data table 2
+                var table2 = document.getElementById('punchDataTable2');
+             
+                // Clear previous rows except the header
+                for (var i = table2.rows.length - 1; i > 0; i--) {
+                  table2.deleteRow(i);
+                }
+             
+                // Add a new row with myNumber and its odd/even status
+                boxer2data['punches'].forEach(punch => {
+                    var row = table2.insertRow();
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+                    var cell6 = row.insertCell(5);
+                    cell1.innerHTML = punch.startTime;
+                    cell2.innerHTML = punch.endTime;
+                    cell3.innerHTML = punch.hand;
+                    cell4.innerHTML = punch.punchType;
+                    cell5.innerHTML = punch.punchQuality;
+                    cell6.innerHTML = punch.target;
+                });
+                
+             
+                // Show the modal
+                document.getElementById('dataTableModal').style.display = 'block'; 
+            }
+            // --------------- inline functions end  --------------------
+
+            // Configure screen selection logic
+            const listItems = listScreen.getElementsByTagName('p');
+            const listArray = [...listItems];
+            listArray.forEach((item) => {item.addEventListener('click', selectRoundItem)});
+
+            // Attach the playVideo function to the play button click event
+            playButton.addEventListener('click', playVideo);
+
+            // Attach the pauseVideo function to the pause button click event
+            pauseButton.addEventListener('click', pauseVideo);
+
+            // Attach the incrementCounter function to the forward button click event
+            forwardButton.addEventListener('click', incrementCounter);
+
+            // Attach the decrementCounter function to the back button click event
+            backButton.addEventListener('click', decrementCounter);
+
+            // Attach the toggleZoom function to the zoom button click event
+            zoomButton.addEventListener('click', toggleZoom);
+
+            // Attach start, end and delete punch functions to relevant button click event
+            startPunchButton.addEventListener('click', startPunch);
+            endPunchButton.addEventListener('click', endPunch);
+            deletePunchButton.addEventListener('click', deletePunch);
+
+            // Attach the saveData function to the save button click event
+            saveButton.addEventListener('click', saveData);
+
+            // Attach selectVideo to the video buttons
+            vidButtons.forEach((button) => button.addEventListener('click', selectVideo));
+
+           // Add onchange event listener to each radio button
+           boxerRadios.forEach(function(radio) {
+               radio.addEventListener('change', boxerSelectionUpdate);
+           });
+
+            // Initial update of the label
+            updateLabel();
+
+            // Set initial button states
+            updateUi();
+        });
+
+
+
+    </script>
+
+</body>
+</html>
+

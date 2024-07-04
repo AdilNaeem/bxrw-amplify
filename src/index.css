@@ -1,0 +1,140 @@
+    body {
+      margin: 0px 0px 0px 12px;
+    }
+    
+    /* Select which screen to show */
+    .list-screen {
+        display: block;
+    }
+
+    .data-source-list-event-div {
+      margin: 2px 50px 0px 5px;
+      border-bottom: solid 1px gray;
+      font-weight: 500;
+    }
+
+    .round-record {
+      margin-left: 10px;
+      font-weight: 400;
+    }
+
+    .round-record:hover {
+        background-color: gray;
+    }
+
+    .labelling-screen {
+        display: none;
+    }
+
+    /* Add a CSS rule to change cursor to crosshair when over the video */
+    #myVideo.zoomed {
+        cursor: crosshair;
+        margin-left: 0;
+        margin-top: 0;
+    }
+
+    /* Add a CSS rule for the red rectangle */
+    #zoomRectangle {
+        position: absolute;
+        border: 2px solid red;
+        pointer-events: none; /* Allow events to pass through the rectangle */
+    }
+
+    .video-container {
+        width: 768px;
+        overflow: hidden;
+        display: block;
+        height: 432px;
+    }
+
+    .video-info-box-container {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      grid-gap: 20px;
+      max-width: 1068px;
+      margin: 5px 0px 0px 0px;
+    }
+
+    .info-box {
+      background-color: #F4F4F4;
+      padding: 10px 15px 10px 15px;
+    }
+
+    .punch-entry-header-container {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0px 0px 20px 0px;
+    }
+
+    #info-box-times-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      max-width: 250px;
+    }
+    .info-box-time-element {
+      font-size: 12px;
+    }
+
+    .punch-data-tables-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      max-width: 801px;
+    }
+
+  /* Positioning for the video and info box */
+  .main-container {
+    display: flex; /* Use flexbox for layout */
+    align-items: flex-start; /* Align items to the start of the container */
+    gap: 20px; /* Gap between the image and the information box */
+  }
+
+  /* Container styling for better layout */
+  .radio-button-container {
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    max-width: 300px;
+  }
+
+  /* Hide the default radio button */
+  .toggle-radio input[type="radio"] {
+    display: none;
+  }
+
+  /* Styling for the labels to look like toggle buttons */
+  .toggle-radio label {
+    background-color: #e8e8e8;
+    padding: 10px 20px;
+    border: 2px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px; /* Adds spacing between toggle buttons */
+    display: inline-block; /* Aligns labels in a line */
+  }
+
+  /* Styling for the labels when the radio button is checked */
+  .toggle-radio input[type="radio"]:checked + label {
+    background-color: #009688;
+    color: white;
+  }
+
+  /* Styling for camera buttons */
+  .camera-buttons button {
+    padding: 2px 10px;
+    margin-right: 2px; /* Adds spacing between buttons */
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  a.clickable-link {
+    color: blue;
+    cursor: default;
+}
+

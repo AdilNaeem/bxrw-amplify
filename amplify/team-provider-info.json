@@ -1,0 +1,77 @@
+{
+  "main": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-brllabeller-main-154849-authRole",
+      "UnauthRoleArn": "arn:aws:iam::718043874196:role/amplify-brllabeller-main-154849-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::718043874196:role/amplify-brllabeller-main-154849-authRole",
+      "Region": "eu-west-2",
+      "DeploymentBucketName": "amplify-brllabeller-main-154849-deployment",
+      "UnauthRoleName": "amplify-brllabeller-main-154849-unauthRole",
+      "StackName": "amplify-brllabeller-main-154849",
+      "StackId": "arn:aws:cloudformation:eu-west-2:718043874196:stack/amplify-brllabeller-main-154849/e5350e60-bebd-11ee-8114-02541402fff4",
+      "AmplifyAppId": "de9m7ezx4j86i"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "de9m7ezx4j86i",
+          "type": "manual"
+        }
+      },
+      "auth": {
+        "brllabeller070aeb0f": {}
+      },
+      "api": {
+        "brllabeller": {}
+      }
+    }
+  },
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-brllabeller-dev-153216-authRole",
+      "UnauthRoleArn": "arn:aws:iam::718043874196:role/amplify-brllabeller-dev-153216-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::718043874196:role/amplify-brllabeller-dev-153216-authRole",
+      "Region": "eu-west-2",
+      "DeploymentBucketName": "amplify-brllabeller-dev-153216-deployment",
+      "UnauthRoleName": "amplify-brllabeller-dev-153216-unauthRole",
+      "StackName": "amplify-brllabeller-dev-153216",
+      "StackId": "arn:aws:cloudformation:eu-west-2:718043874196:stack/amplify-brllabeller-dev-153216/95db19b0-bebb-11ee-a67a-0683146147c8",
+      "AmplifyAppId": "de9m7ezx4j86i"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "de9m7ezx4j86i",
+          "type": "manual"
+        }
+      }
+    }
+  },
+  "test": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-brllabeller-test-101618-authRole",
+      "UnauthRoleArn": "arn:aws:iam::718043874196:role/amplify-brllabeller-test-101618-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::718043874196:role/amplify-brllabeller-test-101618-authRole",
+      "Region": "eu-west-2",
+      "DeploymentBucketName": "amplify-brllabeller-test-101618-deployment",
+      "UnauthRoleName": "amplify-brllabeller-test-101618-unauthRole",
+      "StackName": "amplify-brllabeller-test-101618",
+      "StackId": "arn:aws:cloudformation:eu-west-2:718043874196:stack/amplify-brllabeller-test-101618/98093270-2965-11ef-968e-0a8cfb4f31f1",
+      "AmplifyAppId": "de9m7ezx4j86i"
+    },
+    "categories": {
+      "auth": {
+        "brllabeller070aeb0f": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "de9m7ezx4j86i",
+          "type": "manual"
+        }
+      },
+      "api": {
+        "brllabeller": {}
+      }
+    }
+  }
+}
